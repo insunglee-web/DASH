@@ -70,6 +70,16 @@ export function formatYmdWithWeekday(ymd: Ymd): string {
   return `${ymd} (${weekdayKo(ymd)})`;
 }
 
+/** "YYYYMMDD" + "HH:MM"(서울) → 시각. 형식이 틀리면 null */
+export function seoulDateTime(ymd: Ymd, hhmm: string): Date | null {
+  const parsed = parseYmd(ymd);
+  const time = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(hhmm);
+  if (!parsed || !time) return null;
+  return new Date(
+    Date.UTC(parsed.year, parsed.month - 1, parsed.day, Number(time[1]), Number(time[2])) - SEOUL_OFFSET_MS,
+  );
+}
+
 /** 서울 기준 "HH:MM" */
 export function formatTimeKo(date: Date): string {
   const seoul = new Date(date.getTime() + SEOUL_OFFSET_MS);

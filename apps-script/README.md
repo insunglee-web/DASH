@@ -41,7 +41,7 @@ Google Cloud Console 없이, 본인 Gmail 계정의 Apps Script로 캘린더를 
 1. 오른쪽 위 **배포** → **새 배포** → 유형 **웹 앱**
 2. 실행 사용자: **나**, 액세스 권한: **모든 사용자** (서버가 Google 로그인 없이 호출해야 하므로 필요. 모든 요청은 서명으로 검증합니다)
 3. 배포 → **웹 앱 URL**(`https://script.google.com/macros/s/.../exec`) 복사
-4. 이 URL을 `.env.local`의 `GAS_CALENDAR_WEBAPP_URL`에, 같은 비밀값을 `GAS_CALENDAR_SHARED_SECRET`에 넣습니다.
+4. 이 URL을 Vercel 환경 변수 `GAS_CALENDAR_WEBAPP_URL`(Secret, Production)에 넣습니다. `GAS_CALENDAR_SHARED_SECRET`에는 3단계의 `SHARED_SECRET`과 같은 값이 들어 있어야 합니다. (로컬 개발 서버는 쓰지 않으므로 `.env.local`은 필요 없습니다.)
 
 > 코드를 고친 뒤에는 **배포 관리 → 기존 배포 편집 → 새 버전**으로 갱신하세요. 새 배포를 만들면 URL이 바뀝니다.
 

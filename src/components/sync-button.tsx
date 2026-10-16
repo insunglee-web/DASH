@@ -3,7 +3,20 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type Result = { status: string; pagesFound?: number; contentsFetched?: number; message?: string };
+type Result = {
+  status: string;
+  pagesFound?: number;
+  contentsFetched?: number;
+  calendars?: number;
+  events?: number;
+  message?: string;
+};
+
+function summary(result: Result): string {
+  if (result.pagesFound !== undefined) return ` · 페이지 ${result.pagesFound}개, 본문 ${result.contentsFetched ?? 0}건`;
+  if (result.calendars !== undefined) return ` · 캘린더 ${result.calendars}개, 일정 ${result.events ?? 0}건`;
+  return "";
+}
 
 const STATUS_LABEL: Record<string, string> = {
   success: "완료",
@@ -45,7 +58,7 @@ export function SyncButton({ endpoint, label }: { endpoint: string; label: strin
       {result ? (
         <p role="status" className={`text-sm ${result.status === "failed" ? "text-urgent" : "text-muted"}`}>
           {STATUS_LABEL[result.status] ?? result.status}
-          {result.pagesFound !== undefined ? ` · 페이지 ${result.pagesFound}개, 본문 ${result.contentsFetched ?? 0}건` : ""}
+          {summary(result)}
           {result.message ? ` · ${result.message}` : ""}
         </p>
       ) : null}
