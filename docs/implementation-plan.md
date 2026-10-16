@@ -55,7 +55,8 @@
 - 동기화: 실행 잠금, 제목 날짜 추출, 사라진 페이지 보관 처리, 본문은 처음·변경·최근 14일 페이지만, 240초 예산 초과 시 다음으로 미룸, `sync_run` 기록
 - 화면: 회의록 목록(날짜별/날짜 미확인), 본문 뷰어(`/notes/[id]`), 오늘 화면의 해당 날짜 회의록, 설정 화면 "회의록 지금 동기화" 버튼
 - 검증: 단위 테스트 52개(가짜 Notion API로 트리·페이지네이션·본문 변환·권한 오류 확인), 타입 검사·린트·빌드 통과
-- 미검증: 실제 Notion 응답(`NOTION_INTERNAL_TOKEN` 미설정), `page_size=100` 허용 여부, child_page 블록 수정 시각이 본문 수정을 반영하는지(그래서 최근 14일 페이지는 매번 다시 읽음)
+- 운영 검증(20261016): 첫 실행은 연결이 페이지에 붙지 않아 404로 실패했고, 연결을 추가한 뒤 두 번째 실행에서 **성공**했다. 페이지 46개(20260709~20261016) 모두 제목에서 날짜를 읽었고(날짜 미확인 0, 요일 불일치 0), 본문 46건을 가져왔다(가장 긴 본문 261블록, 잘림 없음). API 호출 121회, 63초 걸렸다. `page_size=100`이 허용되는 것을 확인했다.
+- 남은 확인: child_page 블록 수정 시각이 본문 수정을 반영하는지(그래서 최근 14일 페이지는 매번 다시 읽음). 회의록이 늘면 실행 시간도 늘어나므로 240초 예산에 다가가는지 지켜본다.
 
 ### 4단계: Google Calendar 읽기 → 쓰기 (Apps Script 브리지)
 - 4-1 읽기: 캘린더 선택, 기간 창(-7일~+60일) 동기화, 일/주 보기
@@ -100,7 +101,7 @@
 | `ALLOWED_GITHUB_USER_ID` | 로그인 허용 GitHub 숫자 ID(`insunglee-web`의 ID) | |
 | `GAS_CALENDAR_WEBAPP_URL` | Apps Script 웹 앱 `/exec` URL | ✅ |
 | `GAS_CALENDAR_SHARED_SECRET` | 브리지 HMAC 서명 비밀값(Apps Script 스크립트 속성 `SHARED_SECRET`과 같은 값) | ✅ |
-| `NOTION_INTERNAL_TOKEN` | Internal connection 토큰 | ✅ |
+| `NOTION_INTERNAL_TOKEN` | Internal connection 토큰(운영 동작 확인, 20261016) | ✅ |
 | `NOTION_API_VERSION` | 예: `2026-03-11` (구현 시 재확인) | |
 | `NOTION_MEETING_ROOT_PAGE_ID` | `39dfa7ab-52b6-80c9-9e08-db79b4afe378` | |
 | `NOTION_MAX_DEPTH` | 하위 페이지 탐색 깊이, 기본 2 | |
