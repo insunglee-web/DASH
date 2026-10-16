@@ -7,13 +7,15 @@ Google Cloud Console 없이, 본인 Gmail 계정의 Apps Script로 캘린더를 
 
 1. 본인 Gmail로 https://script.google.com 접속 → **새 프로젝트**
 2. 프로젝트 이름: `dashboard-calendar-bridge`
-3. 왼쪽 **프로젝트 설정(톱니바퀴)** → **"appsscript.json" 매니페스트 파일을 편집기에 표시** 체크
-4. 편집기에서
-   - `Code.gs` 내용을 모두 지우고 이 폴더의 [`Code.gs`](Code.gs)를 붙여넣기
-   - `appsscript.json` 내용을 이 폴더의 [`appsscript.json`](appsscript.json)으로 바꾸기
-   - 저장
+3. 편집기의 `Code.gs`(또는 `코드.gs`)를 클릭 → **Ctrl+A로 기존 내용을 모두 지우고** 코드 전체를 붙여넣기 → **Ctrl+S 저장**
+   - 코드 전체 복사 방법(둘 중 하나):
+     - 이 PC에서 아래 명령을 실행하면 클립보드에 복사됩니다: `powershell -c "Get-Content -Raw -Encoding UTF8 apps-script\Code.gs | Set-Clipboard"`
+     - 또는 https://raw.githubusercontent.com/insunglee-web/DASH/main/apps-script/Code.gs 를 열고 Ctrl+A → Ctrl+C
+   - 파일은 `Code.gs` 하나만 있으면 됩니다. `appsscript.json`(매니페스트)은 **건드리지 않아도 됩니다**. 필요한 캘린더 권한은 Apps Script가 코드에서 자동으로 알아냅니다.
+4. 설정(톱니바퀴) → "Chrome V8 런타임 사용"이 켜져 있는지 확인(기본값)
 
 > 이 과정에서 카드 등록을 요구하는지 알려 주세요(문서상 필요 없는 것으로 보이지만 확인 전입니다).
+> 저장할 때 오류가 나면 오류 문구와 줄 번호를 알려 주세요.
 
 ## 2. 권한 승인과 캘린더 ID 확인
 

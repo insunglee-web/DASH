@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { OAUTH_STATE_COOKIE, allowedGithubUserId, githubConfig } from "@/lib/auth/config";
 import { exchangeCode, fetchGithubUser, revokeToken } from "@/lib/auth/github";
 import { cookieMaxAgeSeconds, encodeSession, sessionCookieName } from "@/lib/auth/session";
+import { ensureAppUser } from "@/lib/db/user";
 import { isProduction, requireEnv } from "@/lib/env";
 import { safeEqual } from "@/lib/security/compare";
 import { describeError } from "@/lib/security/mask";
@@ -54,6 +55,13 @@ export async function GET(request: NextRequest) {
 
   const now = Date.now();
   const session = { uid: user.id, login: user.login, iat: now, seen: now };
+
+  // DB가 아직 준비되지 않았어도 로그인은 되게 한다
+  try {
+    await ensureAppUser(session);
+  } catch (error) {
+    console.error("[auth] app_user 저장 실패", describeError(error));
+  }
   const response = NextResponse.redirect(new URL("/", request.url));
   response.cookies.delete({ name: OAUTH_STATE_COOKIE, path: "/api/auth/github" });
   response.cookies.set(sessionCookieName(isProduction()), encodeSession(session, sessionSecret), {

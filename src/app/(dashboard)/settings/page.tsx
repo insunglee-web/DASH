@@ -1,9 +1,21 @@
+import { SyncButton } from "@/components/sync-button";
 import { Card, PageHeader, StatusBadge } from "@/components/ui";
 import { currentSession } from "@/lib/auth/current";
-import { envStatus } from "@/lib/env";
+import { currentUser } from "@/lib/auth/current-user";
+import { formatTimeKo, toYmd } from "@/lib/date";
+import { checkDb } from "@/lib/db/user";
+import { envStatus, isSet } from "@/lib/env";
+import { lastNotionSync } from "@/lib/notion/queries";
+
+function formatDateTime(date: Date): string {
+  return `${toYmd(date)} ${formatTimeKo(date)}`;
+}
 
 export default async function SettingsPage() {
   const session = await currentSession();
+  const db = await checkDb();
+  const user = db.ok ? await currentUser() : null;
+  const notionSync = user?.ok ? await lastNotionSync(user.userId).catch(() => null) : null;
   const status = envStatus();
   const groups = [...new Set(status.map((item) => item.group))];
   const missing = status.filter((item) => item.required && !item.set).length;
@@ -44,6 +56,30 @@ export default async function SettingsPage() {
             ))}
           </div>
         </Card>
+        <div className="flex flex-col gap-4">
+        <Card
+          title="연결 상태"
+          badge={db.ok ? <StatusBadge tone="ok">DB 정상</StatusBadge> : <StatusBadge tone="warn">DB 오류</StatusBadge>}
+        >
+          <ul className="flex flex-col gap-2 text-sm">
+            <li>
+              DB(Supabase): {db.ok ? `연결됨 · 응답 ${db.latencyMs}ms` : "연결 실패"}
+              {!db.ok ? <p className="mt-1 break-all text-xs text-urgent">{db.error}</p> : null}
+            </li>
+            <li>
+              Notion 마지막 동기화:{" "}
+              {notionSync?.lastSuccessAt ? formatDateTime(notionSync.lastSuccessAt) : "없음"}
+              {notionSync && notionSync.failures > 0 ? ` · 연속 실패 ${notionSync.failures}회` : ""}
+            </li>
+          </ul>
+          <div className="mt-4">
+            {db.ok && isSet("NOTION_INTERNAL_TOKEN") ? (
+              <SyncButton endpoint="/api/sync/notion" label="회의록 지금 동기화" />
+            ) : (
+              <p className="text-sm text-muted">DB와 NOTION_INTERNAL_TOKEN이 준비되면 회의록을 동기화할 수 있습니다.</p>
+            )}
+          </div>
+        </Card>
         <Card title="계정">
           <p className="text-sm">
             로그인: <span className="font-medium">@{session?.login ?? "-"}</span>
@@ -57,6 +93,7 @@ export default async function SettingsPage() {
             </button>
           </form>
         </Card>
+        </div>
       </div>
     </>
   );

@@ -167,10 +167,17 @@
 | Vercel 서울 리전 | ✅ | `icn1` 존재 / ⚠️ Hobby에서 기본 함수 리전을 변경할 수 있는지 확인 |
 | Vercel Hobby 용도 제한 | ✅ | 비상업적 개인 용도만 허용 → 사용자 판단으로 개인 용도 |
 | Supabase 서울 리전 | ✅ | `ap-northeast-2` |
+| Supabase 프로젝트 | ✅ | `dash`(ref `awoobbsdgpkeyvmsryre`) 생성, 스키마 마이그레이션·접근 차단 적용(20261016, database-schema.md 6-0). DB 비밀번호는 사용자가 대시보드에서 재설정해 `DATABASE_URL`(Transaction pooler, 6543)을 Vercel에 Sensitive로 입력한다. |
 | Supabase Free 한도 | ✅ | 프로젝트 2개, DB 500MB / ⚠️ 일시정지 기준 수치 비공개 |
 | Supabase Cron | ✅ | 초 단위 주기와 HTTP 요청 가능 / ⚠️ Free 플랜 사용 가능 여부, Vault 비밀 참조 방법 |
-| 배포 계정 | ✅ | GitHub `insunglee-web`, Vercel `holden9` |
-| 대시보드 로그인 | ✅ | GitHub OAuth App(카드 불필요). Google OAuth는 쓰지 않으므로 `*.vercel.app` redirect 문제는 없어졌다. GitHub OAuth App의 callback URL에 로컬과 운영 주소를 각각 등록한다(App 하나에 callback 하나만 허용될 수 있어 개발용/운영용 App을 따로 만든다. 검증 필요). |
+| 배포 계정 | ✅ | GitHub `insunglee-web`(공개 저장소 `DASH`, 사용자가 공개를 알고 선택), Vercel `holden9` |
+| Vercel 프로젝트 | ✅ | `dash`(prj_vjSP7rCO15ONMz3ZhDZZMLQLqObN) 생성, DASH 저장소 연결(main push 시 자동 배포), 첫 운영 배포 READY(커밋 3de63ff, 20261016) |
+| 운영 주소 | ✅ | **`https://dash-mu-ten.vercel.app`** → 이 값을 `APP_BASE_URL`, GitHub OAuth App(운영용) callback, NAVER WORKS Redirect URL에 쓴다 |
+| 서울 리전 | ✅ | 응답 헤더 `x-vercel-id: icn1::icn1`로 함수가 서울에서 실행되는 것을 확인(Hobby에서 `regions: ["icn1"]` 적용됨) |
+| 배포 보호 | ✅ | 프로젝트 기본값 Vercel Authentication(`all_except_custom_domains`). 확인 결과 운영 주소 `dash-mu-ten.vercel.app`는 공개 접근(앱의 GitHub 로그인이 보호), 배포별 주소와 `dash-holden9.vercel.app`, `dash-git-main-...` 등은 Vercel 로그인이 필요하다. Supabase Cron은 운영 주소로 호출하면 된다. |
+| 운영 동작 | ✅ | `/` → `/login` 307, `/api/jobs/tick` 비인증 401, 로그인 시작 → 환경 변수 없음 안내(`/login?error=config`), HSTS 등 보안 헤더 적용 |
+| 대시보드 로그인 | ✅ | GitHub OAuth App(카드 불필요). **운영용 하나만** 만든다(20261016 사용자 결정). callback `https://dash-mu-ten.vercel.app/api/auth/github/callback`. 로컬에서는 GitHub 로그인을 하지 않는다. |
+| Vercel 환경 변수(비밀 아님) | ✅ | `APP_BASE_URL`, `APP_TIMEZONE`, `ALLOWED_GITHUB_USER_ID`(=304260978, insunglee-web 공개 숫자 ID), `TOKEN_ENCRYPTION_KEY_VERSION`, `JOB_TIME_BUDGET_SECONDS`, `NOTION_*`(토큰 제외), `NAVERWORKS_SCOPES`, `MAIL_RETENTION_DAYS`, `LOG_LEVEL`를 Production에 등록(20261016). 비밀값은 사용자가 직접 Sensitive로 입력한다. |
 
 ## 6. 참고 출처
 - NAVER WORKS Mail API: https://developers.worksmobile.com/kr/docs/mail

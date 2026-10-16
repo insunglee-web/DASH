@@ -49,6 +49,14 @@
 - 페이지 트리 수집, 날짜 추출(`YYYYMMDD` + 요일/주제), 본문 재귀 수집, 변경 감지, 뷰어
 - 완료 기준: 실제 회의록 페이지 목록이 `YYYYMMDD`로 정렬되어 보이고, 추출 실패 건이 "날짜 미확인"으로 분리됨
 
+#### 3단계 진행 (20261016, 코드 완료 · 실제 Notion 연결 전)
+- 로그인 시 `app_user` 저장(DB 사용 시작), 설정 화면에 DB 연결 상태(응답 시간)와 Notion 마지막 동기화 표시
+- Notion 읽기 클라이언트(속도 제한·재시도), 하위 페이지 트리 수집(깊이 `NOTION_MAX_DEPTH`), 블록 정규화(문단·제목·목록·할 일·토글·인용·콜아웃·코드·표·구분선·링크, 이미지 등은 "Notion에서 확인" 안내), XSS 방지(HTML 삽입 없음, http/https 링크만)
+- 동기화: 실행 잠금, 제목 날짜 추출, 사라진 페이지 보관 처리, 본문은 처음·변경·최근 14일 페이지만, 240초 예산 초과 시 다음으로 미룸, `sync_run` 기록
+- 화면: 회의록 목록(날짜별/날짜 미확인), 본문 뷰어(`/notes/[id]`), 오늘 화면의 해당 날짜 회의록, 설정 화면 "회의록 지금 동기화" 버튼
+- 검증: 단위 테스트 52개(가짜 Notion API로 트리·페이지네이션·본문 변환·권한 오류 확인), 타입 검사·린트·빌드 통과
+- 미검증: 실제 Notion 응답(`NOTION_INTERNAL_TOKEN` 미설정), `page_size=100` 허용 여부, child_page 블록 수정 시각이 본문 수정을 반영하는지(그래서 최근 14일 페이지는 매번 다시 읽음)
+
 ### 4단계: Google Calendar 읽기 → 쓰기 (Apps Script 브리지)
 - 4-1 읽기: 캘린더 선택, 기간 창(-7일~+60일) 동기화, 일/주 보기
 - 4-2 쓰기: 단일 일정 생성·수정·삭제, 수정 시각 기반 충돌 처리, 감사 로그. **블루캐니언워터파크 캘린더에서 `[테스트]` 일정으로 먼저 검증**(integration-checklist.md 2-4절)
@@ -116,7 +124,12 @@
 5. ~~GitHub, Vercel 계정~~ → 있음(`insunglee-web`, `holden9`). 두 계정 모두 2단계 인증이 켜져 있는지 확인
 6. **Supabase** Free 가입(GitHub 계정으로 가입 가능, 2단계 인증) → 프로젝트 2개 생성: `dashboard-dev`, `dashboard-prod`, 둘 다 리전 **Seoul (ap-northeast-2)**. DB 비밀번호는 강한 랜덤값으로 정하고 비밀번호 관리자에 보관
 7. ~~Google Cloud 웹 콘솔~~ → **사용하지 않음**(C-16). 대신 **Apps Script**: 본인 Gmail로 script.google.com에서 프로젝트를 만들고, 2단계에서 제공하는 코드를 붙여넣어 웹 앱으로 배포한다(integration-checklist.md 2-5절)
-8. **GitHub OAuth App**(대시보드 로그인용): GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. 개발용(callback `http://localhost:3000/api/auth/github/callback`)은 1단계에서, 운영용은 7단계에서 만든다.
+8. **GitHub OAuth App**(대시보드 로그인용, **운영용 하나만** 사용 — 20261016 사용자 결정): GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
+   - Application name: `DASH`
+   - Homepage URL: `https://dash-mu-ten.vercel.app`
+   - Authorization callback URL: `https://dash-mu-ten.vercel.app/api/auth/github/callback`
+   - 만든 뒤 Client ID와 **Generate a new client secret**으로 만든 비밀값을 Vercel 환경 변수 `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`(Sensitive)에 직접 입력
+   - 영향: 로컬(`localhost`)에서는 GitHub 로그인을 할 수 없다. 로그인이 필요한 확인은 운영 주소에서 하고, 로컬에서는 단위 테스트와 빌드로 확인한다.
 9. **NAVER WORKS** Developer Console 앱 생성(또는 관리자에게 요청) → Client ID/Secret 발급 → Redirect URL 등록 → scope `mail.read` → 토큰 설정(Access Token 1시간, Rotation On) → Admin > Apps에서 본인을 사용자로 지정
 10. **Notion** Internal connection 생성(콘텐츠 읽기만) → 기존 「놀발 업무일지 및 미팅록」 페이지에 연결 추가. **새 페이지는 만들지 않는다**(integration-checklist.md 3-3절)
 

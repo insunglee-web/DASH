@@ -5,6 +5,8 @@ const PATTERNS: [RegExp, string][] = [
   [/((?:access|refresh|id)_token["'=:\s]+["']?)[^"'&\s,}]+/gi, "$1***"],
   [/((?:client_secret|secret|password|code|sig)["'=:\s]+["']?)[^"'&\s,}]+/gi, "$1***"],
   [/(secret_|ntn_)[A-Za-z0-9]{10,}/g, "$1***"],
+  // postgresql://user:password@host → 비밀번호 가림
+  [/(\b[a-z][a-z0-9+.-]*:\/\/[^:/\s@]+:)[^@\s]+@/gi, "$1***@"],
 ];
 
 export function maskSecrets(text: string): string {

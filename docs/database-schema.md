@@ -238,6 +238,12 @@ erDiagram
 - 남은 결정: 없음.
 
 ## 6. Supabase 운영 메모
+
+### 6-0. 운영 프로젝트 (20261016 생성)
+- 프로젝트 `dash`, ref `awoobbsdgpkeyvmsryre`, 리전 `ap-northeast-2`(서울), PostgreSQL 17, 조직 insunglee-web's Org, 비용 $0/월(사용자 확인)
+- 적용한 마이그레이션(Supabase MCP): `0000_init`(17개 테이블), `0001_lock_down_app_schema`(RLS 켜기, anon/authenticated 권한 회수), `register_drizzle_journal`(drizzle 기록 테이블에 0000·0001 등록 → `npm run db:migrate`가 다시 적용하지 않음)
+- 검증: `app` 스키마 17개 테이블 모두 RLS 켜짐, anon·authenticated·service_role은 `app` 스키마 사용 권한 없음. 보안 점검(advisor)은 "RLS는 켜졌지만 정책 없음" INFO 17건만 나왔고, 이는 의도한 상태다(Data API로는 아무것도 읽을 수 없음).
+- 이후 마이그레이션: `npm run db:generate`로 SQL을 만든 뒤 `npm run db:migrate`(로컬, `DIRECT_DATABASE_URL`)로 적용한다. Supabase MCP로 적용할 때는 같은 SQL을 쓰고 drizzle 기록도 함께 넣는다.
 - 스키마: 앱 테이블은 `app` 스키마에 둔다. Data API에 노출하지 않고 모든 테이블에 RLS를 켠다(security.md 3장).
 - 접속: Vercel 함수 → Supabase 연결 풀러(SSL). 마이그레이션은 로컬 PC에서 직접 연결 주소로 실행한다.
 - 용량 추정: 메일 메타데이터는 1건당 1KB 미만으로 보고, 하루 200건 × 90일이면 약 18MB다. Notion 본문 JSON과 일정을 합쳐도 500MB에 크게 못 미칠 것으로 본다(관찰 필요).

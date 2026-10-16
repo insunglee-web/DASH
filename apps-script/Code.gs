@@ -42,7 +42,7 @@ function doPost(e) {
 
 function doGet() {
   return ContentService.createTextOutput(
-    JSON.stringify({ ok: false, error: { code: 'method_not_allowed', message: 'POST만 지원합니다.' } }),
+    JSON.stringify({ ok: false, error: { code: 'method_not_allowed', message: 'POST만 지원합니다.' } })
   ).setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -98,7 +98,7 @@ function verifyRequest_(request) {
     throw bridgeError_('not_configured', 'SHARED_SECRET 스크립트 속성이 없거나 너무 짧습니다.');
   }
   var expected = Utilities.base64Encode(
-    Utilities.computeHmacSha256Signature(canonicalString_(request), secret, Utilities.Charset.UTF_8),
+    Utilities.computeHmacSha256Signature(canonicalString_(request), secret, Utilities.Charset.UTF_8)
   );
   if (!constantTimeEquals_(request.sig, expected)) {
     throw bridgeError_('unauthorized', '서명이 올바르지 않습니다.');
@@ -140,7 +140,7 @@ function config_() {
     read: read,
     write: write,
     testMode: props.getProperty('TEST_MODE') !== 'false',
-    testPrefix: props.getProperty('TEST_TITLE_PREFIX') || '[테스트]',
+    testPrefix: props.getProperty('TEST_TITLE_PREFIX') || '[테스트]'
   };
 }
 
@@ -202,7 +202,7 @@ function eventToJson_(event) {
     location: event.getLocation() || '',
     description: truncate_(event.getDescription(), MAX_DESCRIPTION_LENGTH),
     recurring: event.isRecurringEvent(),
-    lastUpdated: event.getLastUpdated().toISOString(),
+    lastUpdated: event.getLastUpdated().toISOString()
   };
 }
 
@@ -237,7 +237,7 @@ function listCalendars_(cfg) {
         id: id,
         name: calendar.getName(),
         color: calendar.getColor(),
-        writable: cfg.write.indexOf(id) >= 0,
+        writable: cfg.write.indexOf(id) >= 0
       };
     })
     .filter(function (item) {
@@ -256,7 +256,7 @@ function listEvents_(cfg, params) {
   var events = calendar.getEvents(from, to);
   return {
     events: events.slice(0, MAX_EVENTS).map(eventToJson_),
-    truncated: events.length > MAX_EVENTS,
+    truncated: events.length > MAX_EVENTS
   };
 }
 
