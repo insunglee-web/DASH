@@ -158,7 +158,7 @@ export function EventForm({ calendars, initial, testMode, onDone }: Props) {
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={busy || calendars.length === 0}
+          disabled={busy || (!editing && calendars.length === 0)}
           className="min-h-11 flex-1 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
         >
           {busy ? "저장 중…" : editing ? "수정 저장" : "일정 만들기"}

@@ -67,7 +67,8 @@ export async function callCalendarBridge<T>(
 ): Promise<T> {
   const url = process.env.GAS_CALENDAR_WEBAPP_URL;
   const secret = process.env.GAS_CALENDAR_SHARED_SECRET;
-  if (!url || !secret) throw new BridgeError("not_configured", "캘린더 브리지 환경 변수가 설정되지 않았습니다.");
+  // Apps Script 쪽 설정 누락(not_configured)과 구분한다
+  if (!url || !secret) throw new BridgeError("server_not_configured", "캘린더 브리지 환경 변수가 설정되지 않았습니다.");
 
   // 같은 nonce는 브리지가 거부하므로 재시도할 때마다 새로 서명한다.
   // 쓰기 요청은 이미 처리됐을 수 있어(중복 생성 위험) 재시도하지 않는다.

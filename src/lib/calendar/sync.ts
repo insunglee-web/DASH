@@ -165,8 +165,10 @@ export async function syncCalendar(userId: string, options: { budgetMs?: number 
 
 export function bridgeErrorMessage(error: BridgeError): string {
   switch (error.code) {
+    case "server_not_configured":
+      return "Vercel에 GAS_CALENDAR_WEBAPP_URL 또는 GAS_CALENDAR_SHARED_SECRET이 없습니다.";
     case "not_configured":
-      return "캘린더 브리지 설정이 없습니다. GAS_CALENDAR_WEBAPP_URL / SHARED_SECRET을 확인해 주세요.";
+      return "Apps Script의 SHARED_SECRET 스크립트 속성이 없거나 32자보다 짧습니다. 스크립트 속성을 확인해 주세요.";
     case "unauthorized":
       return "서명이 올바르지 않습니다. Apps Script의 SHARED_SECRET과 Vercel의 GAS_CALENDAR_SHARED_SECRET이 같은지 확인해 주세요.";
     case "expired":
